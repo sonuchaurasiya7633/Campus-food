@@ -81,7 +81,7 @@ const CartPage = () => {
                 className="relative overflow-hidden bg-gradient-to-r from-[#ff4d2d] to-[#ff764d] 
                text-white px-6 sm:px-10 py-3 sm:py-3.5 rounded-xl font-semibold 
                shadow-md hover:shadow-xl cursor-pointer 
-               transition-all duration-500 ease-in-out transform hover:scale-105 group"
+               transition-all duration-500 ease-in-out transform hover:scale-105 group" onClick={()=>navigate("/checkout")}
               >
                 {/* Glow effect */}
                 <span
@@ -90,7 +90,7 @@ const CartPage = () => {
                 ></span>
 
                 {/* Button Text */}
-                <span className="relative z-10 flex items-center gap-2">
+                <span className="relative z-10 flex items-center gap-2" >
                   Proceed to Checkout
                   <FaChevronRight />
                 </span>
