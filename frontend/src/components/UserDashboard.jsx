@@ -4,9 +4,11 @@ import CategoryCard from "./categoryCard";
 import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import FoodCart from "./FoodCart";
-
+import { IoMdLocate } from "react-icons/io";
 const UserDashboard = () => {
-  const { currentCity, shopsInMyCity,itemsInMyCity } = useSelector((state) => state.user);
+  const { currentCity, shopsInMyCity, itemsInMyCity } = useSelector(
+    (state) => state.user
+  );
   const cateScrollRef = useRef();
   const shopScrollRef = useRef();
 
@@ -115,9 +117,21 @@ const UserDashboard = () => {
       </div>
 
       <div className="w-full max-w-6xl flex flex-col gap-6 items-start px-4 sm:px-6 lg:px-8 py-6">
-        <h1 className="text-gray-900 text-2xl sm:text-3xl font-extrabold tracking-tight">
-          Best Shop in {currentCity}
+        <h1 className="text-gray-900 text-2xl sm:text-3xl font-extrabold tracking-tight flex flex-wrap items-center gap-2">
+          Best Shop in
+          <span
+            className="flex items-center gap-2 
+             bg-white
+             px-4 py-2 rounded-2xl 
+             text-[#ff4d2d] font-bold text-2xl 
+             shadow-md hover:shadow-xl 
+             transform hover:-translate-y-1 transition-all duration-300"
+          >
+            <IoMdLocate size={20} className="text-[#ff4d2d]" />
+            {currentCity}
+          </span>
         </h1>
+
         <div className="w-full relative">
           {/* Left Button */}
           {showLeftShopButton && (
@@ -177,13 +191,13 @@ const UserDashboard = () => {
       </div>
 
       <div className="w-full max-w-6xl flex flex-col gap-6 items-start px-4 sm:px-6 lg:px-8 py-6">
-        <h1 className="text-gray-900 text-2xl sm:text-3xl font-extrabold tracking-tight">Suggested Food Items</h1>
+        <h1 className="text-gray-900 text-2xl sm:text-3xl font-extrabold tracking-tight">
+          Suggested Food Items
+        </h1>
         <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center  ">
-   {
-   itemsInMyCity?.map((item,index)=>(
-    <FoodCart key={index} data={item}/>
-   ))
-   }
+          {itemsInMyCity?.map((item, index) => (
+            <FoodCart key={index} data={item} />
+          ))}
         </div>
       </div>
     </div>

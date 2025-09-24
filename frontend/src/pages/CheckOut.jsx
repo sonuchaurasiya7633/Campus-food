@@ -14,6 +14,7 @@ import { setAddress, setLocation } from "../redux/mapSlice";
 import axios from "axios";
 import { FaCreditCard } from "react-icons/fa";
 import { FaIndianRupeeSign } from "react-icons/fa6";
+import { serverUrl } from "../App";
 
 function RecenterMap({ location }) {
   if (location.lat && location.lon) {
@@ -82,6 +83,30 @@ const CheckOut = () => {
       console.log(error);
     }
   };
+
+ const handlePlaceOrder = async () => {
+  try {
+    const result = await axios.post(
+      `${serverUrl}/api/order/place-order`,
+      {
+        paymentMethod,
+        deliveryAddress: {
+          text: addressInput,
+          latitude: location.lat,
+          longitude: location.lon, // ✅ FIX: lon use karna h, lng nahi
+        },
+        totalAmount,
+        cartItems,
+      },
+      { withCredentials: true }
+    );
+    console.log(result.data);
+    navigate("/order-placed")
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 
   useEffect(() => {
     setAddressInput(address);
@@ -266,10 +291,7 @@ const CheckOut = () => {
             {/* Subtotal */}
             <div className="flex justify-between pt-2 text-gray-700 text-sm">
               <span>Subtotal</span>
-              <span>
-                
-                ₹ {totalAmount}
-              </span>
+              <span>₹ {totalAmount}</span>
             </div>
 
             {/* Delivery Fee */}
@@ -296,7 +318,7 @@ const CheckOut = () => {
             </div>
 
             {/* CTA Button */}
-            <button className="w-full mt-4 bg-gradient-to-r from-[#ff4d2d] to-[#ff7b54] hover:opacity-90 text-white py-3 rounded-2xl font-semibold shadow-md transition-all duration-300">
+            <button className="w-full mt-4 bg-gradient-to-r from-[#ff4d2d] to-[#ff7b54] hover:opacity-90 text-white py-3 rounded-2xl font-semibold shadow-md transition-all cursor-pointer duration-300" onClick={handlePlaceOrder}>
               {paymentMethod === "cod" ? "Place Order" : "Pay & Place Order"}
             </button>
           </div>

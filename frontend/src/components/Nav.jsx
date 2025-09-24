@@ -12,12 +12,14 @@ import { setUserData } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
 
 const Nav = () => {
-  const { userData, currentCity ,cartItems } = useSelector((state) => state.user);
+  const { userData, currentCity, cartItems } = useSelector(
+    (state) => state.user
+  );
   const { myShopData } = useSelector((state) => state.owner);
   const [showInfo, setShowInfo] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handlelogOut = async () => {
     try {
       await axios.get(`${serverUrl}/api/auth/signout`, {
@@ -97,7 +99,8 @@ const Nav = () => {
                  border-2 border-[#ff4d2d] text-[#ff4d2d] font-medium 
                  hover:bg-[#ff4d2d] hover:text-white 
                  shadow-sm hover:shadow-md 
-                 transition-all duration-300 cursor-pointer" onClick={()=>navigate("/add-item")}
+                 transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate("/add-item")}
                 >
                   <FaPlus size={20} />
                   <span>Add Food Item</span>
@@ -109,9 +112,10 @@ const Nav = () => {
                  border-2 border-[#ff4d2d] text-[#ff4d2d] 
                  hover:bg-[#ff4d2d] hover:text-white 
                  shadow-sm hover:shadow-md 
-                 transition-all duration-300 cursor-pointer"  onClick={()=>navigate("/add-item")}
+                 transition-all duration-300 cursor-pointer"
+                  onClick={() => navigate("/add-item")}
                 >
-                      <FaPlus size={20} />
+                  <FaPlus size={20} />
                 </button>
               </>
             )}
@@ -126,6 +130,7 @@ const Nav = () => {
      shadow-lg hover:shadow-xl 
      hover:bg-[#ff4d2d] hover:text-white
      transition-all duration-300 ease-in-out"
+              onClick={() => navigate("/my-orders")}
             >
               <TbReceipt2 size={20} />
               <span>My Orders</span>
@@ -134,7 +139,7 @@ const Nav = () => {
        bg-gradient-to-r from-amber-600 to-amber-500 
        rounded-full px-[7px] py-[2px] shadow-md animate-bounce"
               >
-               {cartItems.length}
+                {cartItems.length}
               </span>
             </div>
 
@@ -148,6 +153,7 @@ const Nav = () => {
      shadow-md hover:shadow-lg 
      hover:bg-[#ff4d2d] hover:text-white
      transition-all duration-300 ease-in-out"
+              onClick={() => navigate("/my-orders")}
             >
               <TbReceipt2 size={22} />
               <span
@@ -155,16 +161,19 @@ const Nav = () => {
        bg-gradient-to-r from-amber-600 to-amber-500 
        rounded-full px-[6px] py-[1px] shadow-md animate-bounce"
               >
-                 {cartItems.length}
+                {cartItems.length}
               </span>
             </div>
           </>
         ) : (
           <>
-            <div className="relative cursor-pointer hover:scale-110 transition transform" onClick={()=>navigate("/cart")}>
+            <div
+              className="relative cursor-pointer hover:scale-110 transition transform"
+              onClick={() => navigate("/cart")}
+            >
               <FiShoppingCart size={24} className="text-[#ff4d2d]" />
               <span className="absolute right-[-8px] top-[-10px] bg-[#ff4d2d] text-white text-xs rounded-full px-[6px] py-[1px] shadow-md animate-bounce">
-                 {cartItems.length}
+                {cartItems.length}
               </span>
             </div>
 
@@ -176,6 +185,7 @@ const Nav = () => {
              hover:bg-[#ff4d2d] hover:text-white 
              shadow-sm hover:shadow-md 
              transition-all duration-300 cursor-pointer"
+              onClick={() => navigate("/my-orders")}
             >
               My Orders
             </button>
@@ -202,9 +212,14 @@ const Nav = () => {
             <div className="text-[16px] font-semibold capitalize text-gray-700 border-b border-gray-200 pb-2">
               {userData.fullName}
             </div>
-           {userData.role == "user" &&  <div className="md:hidden text-[#ff4d2d] font-semibold cursor-pointer hover:underline">
-              My Orders
-            </div>}
+            {userData.role == "user" && (
+              <div
+                className="md:hidden text-[#ff4d2d] font-semibold cursor-pointer hover:underline"
+                onClick={() => navigate("/my-orders")}
+              >
+                My Orders
+              </div>
+            )}
             <div
               className="text-[#ff4d2d] font-semibold cursor-pointer hover:underline"
               onClick={handlelogOut}
