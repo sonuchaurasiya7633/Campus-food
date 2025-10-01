@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import  { useState } from "react";
 import { MdPhone } from "react-icons/md";
 import { serverUrl } from "../App";
 import { useDispatch } from "react-redux";
