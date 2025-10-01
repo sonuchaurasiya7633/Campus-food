@@ -1,9 +1,7 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { serverUrl } from "../App";
 import axios from "axios";
-import { FaStar } from "react-icons/fa";
 
 const CardUserOrder = ({ data }) => {
   const navigate = useNavigate();
@@ -20,7 +18,7 @@ const CardUserOrder = ({ data }) => {
 
   const handleRating = async (itemId, rating) => {
     try {
-      const result = await axios.post(
+      await axios.post(
         `${serverUrl}/api/item/rating`,
         { itemId, rating },
         { withCredentials: true }
@@ -35,25 +33,29 @@ const CardUserOrder = ({ data }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 space-y-4 sm:space-y-6">
+    <div
+      className="rounded-2xl border border-slate-200 shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 space-y-4 sm:space-y-6"
+      style={{
+        background: "linear-gradient(135deg, #FF9A8B, #FF6A88, #FFF1A1)", // main card gradient
+      }}
+    >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 border-b border-slate-200 pb-3">
         <div>
           <p className="font-semibold text-slate-900 text-base">
             Order #{data._id.slice(-6)}
           </p>
-          <p className="text-xs sm:text-sm text-slate-500">
+          <p className="text-xs sm:text-sm text-slate-700">
             Date : {formateDate(data.createdAt)}
           </p>
         </div>
-        {/*  Always right aligned now */}
         <div className="text-right space-y-1">
-          {data.paymentMethod == "code" ? (
-            <p className="text-xs sm:text-sm text-slate-600 tracking-wide">
+          {data.paymentMethod === "code" ? (
+            <p className="text-xs sm:text-sm text-slate-700 tracking-wide">
               {data.paymentMethod?.toUpperCase()}
             </p>
           ) : (
-            <p className="text-xs sm:text-sm text-slate-600 tracking-wide">
-              Payment: {data.payment ? "true" : "false"}
+            <p className="text-xs sm:text-sm text-slate-700 tracking-wide">
+              Payment: {data.payment ? "Completed" : "Pending"}
             </p>
           )}
 
@@ -65,18 +67,24 @@ const CardUserOrder = ({ data }) => {
 
       {data.shopOrders.map((shopOrder, index) => (
         <div
-          className="border border-slate-200 rounded-xl p-3 sm:p-4 bg-slate-50 space-y-3 sm:space-y-4 hover:bg-slate-100/60 transition"
+          className="border border-slate-200 rounded-xl p-3 sm:p-4 space-y-3 sm:space-y-4 hover:bg-opacity-90 transition"
           key={index}
+          style={{
+            background: "linear-gradient(135deg, #FFD8A9, #FFE4B5)", // shop order gradient
+          }}
         >
           <p className="font-semibold text-slate-800 text-sm sm:text-base">
             {shopOrder.shop.name}
           </p>
 
           <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 overflow-x-auto md:overflow-visible pb-2">
-            {shopOrder.shopOrderItems.map((item, index) => (
+            {shopOrder.shopOrderItems.map((item, idx) => (
               <div
-                key={index}
-                className="flex-shrink-0 w-40 md:w-full border border-slate-200 rounded-lg p-2 bg-white hover:shadow-md hover:scale-[1.02] transition-transform"
+                key={idx}
+                className="flex-shrink-0 w-40 md:w-full border border-slate-200 rounded-lg p-2 hover:shadow-md hover:scale-[1.02] transition-transform"
+                style={{
+                  background: "linear-gradient(135deg, #FFF5E6, #FFEBC2)", // individual item gradient
+                }}
               >
                 <img
                   onClick={() => navigate("/")}
@@ -87,21 +95,31 @@ const CardUserOrder = ({ data }) => {
                 <p className="block text-sm font-semibold mt-2 capitalize text-slate-800 truncate">
                   {item.name}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-600">
                   Qty: {item.quantity} x ₹{item.price}
                 </p>
 
-                { shopOrder.status =="delivered" && 
-                <div className="flex space-x-1 mt-2">
-                 { [1,2,3,4,5].map((star)=>(
-                  <button className={`text-lg ${selectRating[item.item._id]>=star ? 'text-yellow-400': 'text-gray-400' }`} onClick={()=>handleRating(item.item._id,star)}>☆</button>
-                 ))}
-                </div>
-                }
-
+                {shopOrder.status === "delivered" && (
+                  <div className="flex space-x-1 mt-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        className={`text-lg ${
+                          selectRating[item.item._id] >= star
+                            ? "text-yellow-400"
+                            : "text-gray-400"
+                        }`}
+                        onClick={() => handleRating(item.item._id, star)}
+                      >
+                        ☆
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
+
           <div className="flex justify-between items-center border-t border-slate-200 pt-2">
             <p className="font-semibold text-slate-800 text-sm sm:text-base">
               Subtotal: ₹{shopOrder.subtotal}
