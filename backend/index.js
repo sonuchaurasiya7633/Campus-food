@@ -28,6 +28,11 @@ const io = new Server(server,{
 }
 })
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Headers", "Authorization, Content-Type");
+  next();
+});
+
 app.set("io",io)
 
 const port = process.env.PORT || 5000;
