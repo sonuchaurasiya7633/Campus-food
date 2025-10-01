@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { categories } from "../category";
-import CategoryCard from "./categoryCard";
+import CategoryCard from "./CategoryCard";
 import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import FoodCart from "./FoodCart";
