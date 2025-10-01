@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaLocationDot } from "react-icons/fa6";
 import { IoSearch } from "react-icons/io5";
 import { TbReceipt2 } from "react-icons/tb";
@@ -8,9 +8,9 @@ import { RxCross2 } from "react-icons/rx";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { serverUrl } from "../App";
-import { setUserData } from "../redux/userSlice";
+import { setSearchItems, setUserData } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
-
+import logo from "../assets/logo5.png";
 const Nav = () => {
   const { userData, currentCity, cartItems } = useSelector(
     (state) => state.user
@@ -18,6 +18,7 @@ const Nav = () => {
   const { myShopData } = useSelector((state) => state.owner);
   const [showInfo, setShowInfo] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [query,setQuery] = useState("")
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handlelogOut = async () => {
@@ -31,6 +32,26 @@ const Nav = () => {
     }
   };
 
+  const handleSearchItems = async () => {
+  try {
+    const result = await axios.get(
+      `${serverUrl}/api/item/search-items?query=${query}&city=${currentCity}`,
+      { withCredentials:true }
+    )
+    dispatch(setSearchItems(result.data))
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+useEffect(()=>{
+  if(query){
+handleSearchItems()
+  }else{
+    dispatch(setSearchItems(null))
+  }
+
+},[query])
   return (
     <div
       className="w-full h-[70px] flex items-center justify-between px-4 md:px-10 fixed top-0 z-[9999] 
@@ -38,8 +59,8 @@ const Nav = () => {
     >
       {/* Logo */}
       <img
-        src="./public/logo5.png"
-        alt="CampusBites Logo"
+        src={logo}
+        alt={logo}
         className="
           h-25 md:h-25 lg:h-30 w-auto 
           object-contain 
@@ -63,7 +84,7 @@ const Nav = () => {
             <input
               type="text"
               placeholder="Search delicious food..."
-              className="w-full text-gray-700 placeholder-gray-400 bg-transparent outline-none"
+              className="w-full text-gray-700 placeholder-gray-400 bg-transparent outline-none" onChange={(e)=>setQuery(e.target.value)} value={query}
             />
           </div>
         </div>
@@ -134,13 +155,7 @@ const Nav = () => {
             >
               <TbReceipt2 size={20} />
               <span>My Orders</span>
-              <span
-                className="absolute -right-2 -top-2 text-xs font-bold text-white 
-       bg-gradient-to-r from-amber-600 to-amber-500 
-       rounded-full px-[7px] py-[2px] shadow-md animate-bounce"
-              >
-                {cartItems.length}
-              </span>
+              
             </div>
 
             {/* Mobile Button */}
@@ -156,18 +171,13 @@ const Nav = () => {
               onClick={() => navigate("/my-orders")}
             >
               <TbReceipt2 size={22} />
-              <span
-                className="absolute -right-2 -top-2 text-xs font-bold text-white 
-       bg-gradient-to-r from-amber-600 to-amber-500 
-       rounded-full px-[6px] py-[1px] shadow-md animate-bounce"
-              >
-                {cartItems.length}
-              </span>
+             
             </div>
           </>
         ) : (
           <>
-            <div
+          {userData.role=="user" &&
+          <div
               className="relative cursor-pointer hover:scale-110 transition transform"
               onClick={() => navigate("/cart")}
             >
@@ -176,7 +186,8 @@ const Nav = () => {
                 {cartItems.length}
               </span>
             </div>
-
+          }
+            
             {/* Orders Button */}
             <button
               className="hidden md:block px-6 py-2 rounded-full 
@@ -245,6 +256,7 @@ const Nav = () => {
             type="text"
             placeholder="Search delicious food..."
             className="w-full text-gray-700 placeholder-gray-400 bg-transparent outline-none"
+             onChange={(e)=>setQuery(e.target.value)} value={query}
           />
         </div>
       )}

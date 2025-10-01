@@ -15,7 +15,9 @@ import axios from "axios";
 import { FaCreditCard } from "react-icons/fa";
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { serverUrl } from "../App";
-import { addMyOrder } from "../redux/userSlice";
+import { addMyOrder, updateOrderStatus } from "../redux/userSlice";
+import logo5 from "../assets/logo5.png";
+
 
 function RecenterMap({ location }) {
   if (location.lat && location.lon) {
@@ -28,7 +30,9 @@ function RecenterMap({ location }) {
 const CheckOut = () => {
   const navigate = useNavigate();
   const { location, address } = useSelector((state) => state.map);
-  const { cartItems, totalAmount } = useSelector((state) => state.user);
+  const { cartItems, totalAmount, userData } = useSelector(
+    (state) => state.user
+  );
   const [addressInput, setAddressInput] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const dispatch = useDispatch();
@@ -45,12 +49,10 @@ const CheckOut = () => {
   };
 
   const getCurrentLocation = () => {
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      dispatch(setLocation({ lat: latitude, lon: longitude }));
-      getAddressByLatLng(latitude, longitude);
-    });
+    const latitude = userData.location.coordinates[1];
+    const longitude = userData.location.coordinates[0];
+    dispatch(setLocation({ lat: latitude, lon: longitude }));
+    getAddressByLatLng(latitude, longitude);
   };
 
   const getAddressByLatLng = async (lat, lng) => {
@@ -85,28 +87,80 @@ const CheckOut = () => {
     }
   };
 
- const handlePlaceOrder = async () => {
-  try {
-    const result = await axios.post(
-      `${serverUrl}/api/order/place-order`,
-      {
-        paymentMethod,
-        deliveryAddress: {
-          text: addressInput,
-          latitude: location.lat,
-          longitude: location.lon, // ✅ FIX: lon use karna h, lng nahi
+  const handlePlaceOrder = async () => {
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/order/place-order`,
+        {
+          paymentMethod,
+          deliveryAddress: {
+            text: addressInput,
+            latitude: location.lat,
+            longitude: location.lon,
+          },
+          totalAmount:AmountWithDeliveryFee,
+          cartItems,
         },
-        totalAmount,
-        cartItems,
-      },
-      { withCredentials: true }
-    );
-  dispatch(addMyOrder(result.data))
-    navigate("/order-placed")
-  } catch (error) {
-    console.log(error);
-  }
+        { withCredentials: true }
+      );
+      if (paymentMethod == "cod") {
+        dispatch(addMyOrder(result.data));
+        navigate("/order-placed");
+      } else {
+        const orderId = result.data.orderId;
+        const razorOrder = result.data.razorOrder;
+        openRazorpayWindow(orderId, razorOrder);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+const openRazorpayWindow = (orderId, razorOrder) => {
+  const options = {
+    key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+    amount: razorOrder.amount,
+    currency: "INR",
+    name: "CampusBites",
+    description: "Food Delivery Website",
+    image: logo5,
+    order_id: razorOrder.id,
+    handler: async function (response) {
+      try {
+        const result = await axios.post(
+          `${serverUrl}/api/order/verify-payment`,
+          {
+            razorpay_payment_id: response.razorpay_payment_id,
+            orderId,
+          },
+          { withCredentials: true }
+        );
+
+       
+        dispatch(addMyOrder(result.data));
+
+      
+        dispatch(
+          updateOrderStatus({
+            orderId,
+            payment: true,
+          })
+        );
+
+        navigate("/order-placed");
+      } catch (error) {
+         console.log("Place Order Error:", error.response?.data || error.message);
+      }
+    },
+    theme: {
+      color: "#FF5722", 
+    },
+  };
+
+  const rzp = new window.Razorpay(options);
+  rzp.open();
 };
+
 
 
   useEffect(() => {
@@ -319,7 +373,10 @@ const CheckOut = () => {
             </div>
 
             {/* CTA Button */}
-            <button className="w-full mt-4 bg-gradient-to-r from-[#ff4d2d] to-[#ff7b54] hover:opacity-90 text-white py-3 rounded-2xl font-semibold shadow-md transition-all cursor-pointer duration-300" onClick={handlePlaceOrder}>
+            <button
+              className="w-full mt-4 bg-gradient-to-r from-[#ff4d2d] to-[#ff7b54] hover:opacity-90 text-white py-3 rounded-2xl font-semibold shadow-md transition-all cursor-pointer duration-300"
+              onClick={handlePlaceOrder}
+            >
               {paymentMethod === "cod" ? "Place Order" : "Pay & Place Order"}
             </button>
           </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-const CategoryCard = ({ name,image }) => {
+const CategoryCard = ({ name,image,onClick }) => {
   return (
     <motion.div
       whileHover={{ scale: 1.07, rotate: 1 }}
@@ -9,7 +9,7 @@ const CategoryCard = ({ name,image }) => {
       className="relative w-[150px] h-[150px] md:w-[220px] md:h-[220px] shrink-0 rounded-3xl overflow-hidden cursor-pointer
       bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl
       border border-white/20 shadow-[0_8px_30px_rgba(0,0,0,0.4)]
-      group"
+      group" onClick={onClick}
     >
       {/* Glow Background */}
       <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-[#ff4d2d] via-orange-400 to-yellow-500 

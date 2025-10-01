@@ -5,9 +5,9 @@ const shopOrderItemSchema = new mongoose.Schema(
     item: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Item",
-      required:true
+      required: true,
     },
-    name:String,
+    name: String,
     price: Number,
     quantity: Number,
   },
@@ -26,11 +26,33 @@ const shopOrderSchema = new mongoose.Schema(
     },
     subtotal: Number,
     shopOrderItems: [shopOrderItemSchema],
-    status:{
-      type:String,
-      enum:["pending","preparing","out of delivery","delivered"],
-      default:"pending"
-    }
+    status: {
+      type: String,
+      enum: ["pending", "preparing", "out of delivery", "delivered"],
+      default: "pending",
+    },
+    assignment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "DeliveryAssignment",
+      default: null,
+    },
+    assignedDeliveryBoy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    deliveryOtp: {
+      type: String,
+      default: null,
+    },
+
+    otpExpires: {
+      type: Date,
+      default: null,
+    },
+    deliveryAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -55,6 +77,18 @@ const orderSchema = new mongoose.Schema(
       type: Number,
     },
     shopOrders: [shopOrderSchema],
+    payment: {
+      type: Boolean,
+      default: false,
+    },
+    razorpayOrderId: {
+      type: String,
+      default: "",
+    },
+    razorpayPaymentId: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

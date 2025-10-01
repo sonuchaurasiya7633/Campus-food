@@ -1,8 +1,14 @@
 import React from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { serverUrl } from "../App";
+import axios from "axios";
+import { FaStar } from "react-icons/fa";
 
 const CardUserOrder = ({ data }) => {
-  const navigate=useNavigate()
+  const navigate = useNavigate();
+  const [selectRating, setSelectRating] = useState({});
+
   const formateDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString("en-GB", {
@@ -11,6 +17,23 @@ const CardUserOrder = ({ data }) => {
       year: "numeric",
     });
   };
+
+  const handleRating = async (itemId, rating) => {
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/item/rating`,
+        { itemId, rating },
+        { withCredentials: true }
+      );
+      setSelectRating((prev) => ({
+        ...prev,
+        [itemId]: rating,
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-lg transition-shadow p-4 sm:p-6 space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4 border-b border-slate-200 pb-3">
@@ -24,9 +47,16 @@ const CardUserOrder = ({ data }) => {
         </div>
         {/*  Always right aligned now */}
         <div className="text-right space-y-1">
-          <p className="text-xs sm:text-sm text-slate-600 tracking-wide">
-            {data.paymentMethod?.toUpperCase()}
-          </p>
+          {data.paymentMethod == "code" ? (
+            <p className="text-xs sm:text-sm text-slate-600 tracking-wide">
+              {data.paymentMethod?.toUpperCase()}
+            </p>
+          ) : (
+            <p className="text-xs sm:text-sm text-slate-600 tracking-wide">
+              Payment: {data.payment ? "true" : "false"}
+            </p>
+          )}
+
           <p className="inline-flex items-center rounded-full bg-gradient-to-r from-amber-100 to-amber-50 text-amber-700 px-3 py-1 text-xs font-medium border border-amber-200 shadow-sm">
             {data.shopOrders?.[0].status}
           </p>
@@ -48,7 +78,8 @@ const CardUserOrder = ({ data }) => {
                 key={index}
                 className="flex-shrink-0 w-40 md:w-full border border-slate-200 rounded-lg p-2 bg-white hover:shadow-md hover:scale-[1.02] transition-transform"
               >
-                <img onClick={()=>navigate("/")}
+                <img
+                  onClick={() => navigate("/")}
                   src={item.item.image}
                   alt=""
                   className="w-full cursor-pointer h-24 md:h-28 object-cover rounded-md"
@@ -59,6 +90,15 @@ const CardUserOrder = ({ data }) => {
                 <p className="text-xs text-slate-500">
                   Qty: {item.quantity} x ₹{item.price}
                 </p>
+
+                { shopOrder.status =="delivered" && 
+                <div className="flex space-x-1 mt-2">
+                 { [1,2,3,4,5].map((star)=>(
+                  <button className={`text-lg ${selectRating[item.item._id]>=star ? 'text-yellow-400': 'text-gray-400' }`} onClick={()=>handleRating(item.item._id,star)}>☆</button>
+                 ))}
+                </div>
+                }
+
               </div>
             ))}
           </div>
@@ -77,7 +117,10 @@ const CardUserOrder = ({ data }) => {
         <p className="font-semibold text-slate-900 text-base">
           Total: ₹{data.totalAmount}
         </p>
-        <button className="inline-flex items-center justify-center w-full sm:w-auto bg-gradient-to-r from-[#ff4d2d] to-[#e64526] hover:from-[#e64526] hover:to-[#d63b1e] text-white px-5 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#ff4d2d]/60 active:scale-95 cursor-pointer">
+        <button
+          className="inline-flex items-center justify-center w-full sm:w-auto bg-gradient-to-r from-[#ff4d2d] to-[#e64526] hover:from-[#e64526] hover:to-[#d63b1e] text-white px-5 py-2 rounded-lg text-sm font-medium shadow-md hover:shadow-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#ff4d2d]/60 active:scale-95 cursor-pointer"
+          onClick={() => navigate(`/track-order/${data._id}`)}
+        >
           Track Order
         </button>
       </div>

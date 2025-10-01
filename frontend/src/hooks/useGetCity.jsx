@@ -21,6 +21,7 @@ const useGetCity = () => {
       const result = await axios.get(
         `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${apikey}`
       );
+      console.log(result.data)
       const components = result.data.results[0].components;
       const city =
         components.city ||

@@ -5,18 +5,34 @@ import { FaCircleChevronLeft, FaCircleChevronRight } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import FoodCart from "./FoodCart";
 import { IoMdLocate } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
+
 const UserDashboard = () => {
-  const { currentCity, shopsInMyCity, itemsInMyCity } = useSelector(
+  const { currentCity, shopsInMyCity, itemsInMyCity,searchItems} = useSelector(
     (state) => state.user
   );
   const cateScrollRef = useRef();
   const shopScrollRef = useRef();
-
+   const navigate = useNavigate()
   const [showLeftCateButton, setShowLeftCateButton] = useState(false);
   const [showRightCateButton, setShowRightCateButton] = useState(false);
 
   const [showLeftShopButton, setShowLeftShopButton] = useState(false);
   const [showRightShopButton, setShowRightShopButton] = useState(false);
+const [updatedItemsList,setUpdatedItemsList] = useState(itemsInMyCity)
+
+const handleFilterByCategory = (category) => {
+  if (category == "All") {
+    setUpdatedItemsList(itemsInMyCity)
+  } else {
+    const filteredList = itemsInMyCity?.filter(i => i.category === category)
+    setUpdatedItemsList(filteredList)
+  }
+}
+
+useEffect(()=>{
+setUpdatedItemsList(itemsInMyCity)
+},[itemsInMyCity])
 
   const updateCateButton = (ref) => {
     const element = ref.current;
@@ -62,6 +78,9 @@ const UserDashboard = () => {
     }
   }, []);
 
+  
+
+
   const scrollHandler = (ref, direction) => {
     if (ref.current) {
       ref.current.scrollBy({
@@ -73,6 +92,19 @@ const UserDashboard = () => {
 
   return (
     <div className="w-screen min-h-screen flex flex-col gap-6 items-center bg-gradient-to-br from-[#fff9f6] via-[#fffefe] to-[#fef4f2] overflow-auto">
+
+{searchItems && searchItems.length>0 && (
+  <div className="w-full max-w-6xl flex flex-col gap-5 items-start p-5 bg-white shadow-md rounded-2xl mt-4">
+<h1 className="text-gray-900 text-2xl sm:text-3xl font-semibold border-b border-gray-200 pb-2 ">Search Results</h1>
+<div className="w-full h-auto flex flex-wrap gap-6 justify-center">
+  {searchItems.map((item)=>(
+    <FoodCart data={item} key={item._id}/>
+  ))}
+</div>
+  </div>
+  
+)}
+
       <div className="w-full max-w-6xl flex flex-col gap-6 items-start px-4 sm:px-6 lg:px-8 py-6">
         {/* Heading */}
         <h1 className="text-gray-900 text-2xl sm:text-3xl font-extrabold tracking-tight">
@@ -100,7 +132,7 @@ const UserDashboard = () => {
                 name={cate.category}
                 image={cate.image}
                 key={index}
-              />
+               onClick={()=>handleFilterByCategory(cate.category)}/>
             ))}
           </div>
 
@@ -149,7 +181,7 @@ const UserDashboard = () => {
             ref={shopScrollRef}
           >
             {shopsInMyCity?.map((shop, index) => (
-              <div
+              <div onClick={()=>navigate(`/shop/${shop._id}`)}
                 key={index}
                 className="min-w-[220px] sm:min-w-[260px] lg:min-w-[280px] h-[320px] flex-shrink-0 
           bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 
@@ -195,7 +227,7 @@ const UserDashboard = () => {
           Suggested Food Items
         </h1>
         <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center  ">
-          {itemsInMyCity?.map((item, index) => (
+          {updatedItemsList?.map((item, index) => (
             <FoodCart key={index} data={item} />
           ))}
         </div>

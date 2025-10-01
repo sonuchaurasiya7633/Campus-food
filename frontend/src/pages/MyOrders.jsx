@@ -1,14 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { IoArrowBackOutline } from "react-icons/io5";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import OwnerOrderCard from "../components/OwnerOrderCard";
 import CardUserOrder from "../components/CardUserOrder";
+import { setMyOrders, updateRealtimeOrderStatus } from "../redux/userSlice";
 
 const MyOrders = () => {
-  const { userData, myOrders } = useSelector((state) => state.user);
+  const { userData, myOrders, socket } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    socket?.on("newOrder", (data) => {
+      if (data.shopOrders?.[0]?.owner?._id === userData._id) {
+        dispatch(setMyOrders([data, ...myOrders]));
+      }
+    });
+
+ socket?.on('update-status',({orderId,shopId,status,userId})=>{
+  if(userId==userData._id){
+    dispatch(updateRealtimeOrderStatus({orderId,shopId,status}))
+  }
+
+ })
+
+    return () => {
+      socket?.off("newOrder");
+      socket?.off("update-status");
+    };
+  }, [socket]); 
 
   return (
     <div className="w-full min-h-screen flex justify-center px-4 bg-gradient-to-b from-orange-50 via-white to-white">

@@ -12,6 +12,8 @@ const userSlice = createSlice({
     cartItems: [],
     totalAmount: 0,
     myOrders: [],
+    searchItems: null,
+    socket: null,
   },
   reducers: {
     setUserData: (state, action) => {
@@ -32,6 +34,9 @@ const userSlice = createSlice({
     },
     setItemsInMyCity: (state, action) => {
       state.itemsInMyCity = action.payload;
+    },
+    setSocket: (state, action) => {
+      state.socket = action.payload;
     },
     addToCart: (state, action) => {
       const cartItem = action.payload;
@@ -65,9 +70,41 @@ const userSlice = createSlice({
     setMyOrders: (state, action) => {
       state.myOrders = action.payload;
     },
-  addMyOrder:(state,action)=>{
-    state.myOrders=[action.payload,...state.myOrders]
-  }
+    addMyOrder: (state, action) => {
+      state.myOrders = [action.payload, ...state.myOrders];
+    },
+    updateOrderStatus: (state, action) => {
+      const { orderId, shopId, status, payment } = action.payload;
+      const order = state.myOrders.find((o) => o._id == orderId);
+      if (order) {
+        if (
+          status &&
+          order.shopOrders &&
+          order.shopOrders[0].shop._id == shopId
+        ) {
+          order.shopOrders[0].status = status;
+        }
+
+        if (typeof payment !== "undefined") {
+          order.payment = payment;
+        }
+      }
+    },
+
+    updateRealtimeOrderStatus: (state, action) => {
+      const { orderId, shopId, status } = action.payload;
+      const order = state.myOrders.find(o => o._id == orderId);
+      if (order) {
+        const shopOrder = order.shopOrders.find(so=>so.shop._id==shopId)
+        if(shopOrder){
+          shopOrder.status=status
+        }
+      }
+    },
+
+    setSearchItems: (state, action) => {
+      state.searchItems = action.payload;
+    },
   },
 });
 
@@ -82,6 +119,10 @@ export const {
   updateQuantity,
   removeCartItem,
   setMyOrders,
-  addMyOrder
+  addMyOrder,
+  updateOrderStatus,
+  setSearchItems,
+  setSocket,
+  updateRealtimeOrderStatus,
 } = userSlice.actions;
 export default userSlice.reducer;
