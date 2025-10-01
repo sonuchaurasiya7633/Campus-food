@@ -4,10 +4,10 @@ import axios from "axios";
 import { serverUrl } from "../App";
 import DeliveryBoyTracking from "./DeliveryBoyTracking";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { useNavigate } from "react-router-dom";
+
 import { ClipLoader } from "react-spinners";
 const DeliveryBoy = () => {
-  const navigate = useNavigate()
+  
   const { userData, socket } = useSelector((state) => state.user);
   const [availableAssignment, setAvailableAssignment] = useState([]);
   const [currentOrder, setCurrentOrder] = useState();
