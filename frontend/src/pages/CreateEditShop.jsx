@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { IoArrowBackOutline } from "react-icons/io5";
 import { FaUtensils } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +7,6 @@ import axios from "axios";
 import { serverUrl } from "../App";
 import { setMyShopData } from "../redux/ownerSlice";
 import { ClipLoader } from "react-spinners";
-
 const CreateEditShop = () => {
   const navigate = useNavigate();
   const { myShopData } = useSelector((state) => state.owner);
@@ -30,7 +29,6 @@ const CreateEditShop = () => {
     setBackendImage(file);
     setFrontendImage(URL.createObjectURL(file));
   };
-
   const handleSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
@@ -43,27 +41,18 @@ const CreateEditShop = () => {
       if (backendImage) {
         formData.append("image", backendImage);
       }
-
-      // ✅ Get token from localStorage
-      const token = localStorage.getItem("token");
-
       const result = await axios.post(
         `${serverUrl}/api/shop/create-edit`,
         formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // ✅ attach token here
-          },
-          withCredentials: true, // ✅ also send cookies if available
-        }
+        { withCredentials: true }
       );
-
       dispatch(setMyShopData(result.data));
-      navigate("/");
-      setLoading(false);
+      navigate("/")
+      setLoading(false)
+      
     } catch (error) {
       console.log(error);
-      setLoading(false);
+      setLoading(false)
     }
   };
 
@@ -113,7 +102,7 @@ const CreateEditShop = () => {
               <div className="mt-4">
                 <img
                   src={frontendImage}
-                  alt="shop"
+                  alt=""
                   className="w-full h-48 object-cover rounded-lg border"
                 />
               </div>
@@ -160,25 +149,23 @@ const CreateEditShop = () => {
             />
           </div>
 
-          <button
-            className="w-full bg-[#ff4d2d] text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer "
-            disabled={loading}
-          >
-            {loading ? (
-              <ClipLoader
-                size={20}
-                color="transparent"
-                cssOverride={{
-                  border: "3px solid transparent",
-                  borderTop: "3px solid",
-                  borderImage:
-                    "conic-gradient(#ec4899, #6366f1, #22c55e, #f59e0b) 1",
-                  borderRadius: "50%",
-                }}
-              />
-            ) : (
-              " Save "
-            )}
+          <button className="w-full bg-[#ff4d2d] text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer " disabled={loading}>
+             {loading ? (
+            <ClipLoader
+              size={20}
+              color="transparent" // transparent so gradient visible
+              cssOverride={{
+                border: "3px solid transparent",
+                borderTop: "3px solid",
+                borderImage:
+                  "conic-gradient(#ec4899, #6366f1, #22c55e, #f59e0b) 1",
+                borderRadius: "50%",
+              }}
+            />
+          ) : (
+            " Save "
+          )}
+            
           </button>
         </form>
       </div>
