@@ -27,18 +27,19 @@ export const signUp = async (req, res) => {
       email,
       password: hashedPassword,
       mobile,
-      role,
-    });
+      role
+     })
 
-    const token = await genToken(user._id);
-    res.cookie("token", token, {
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-    });
+     const token =await genToken (user._id)
+     res.cookie("token",token,{
+      secure:false,
+      samSite:"strict",
+      maxAge:7*24*60*60*1000,
+      httpOnly:true
+     })
+    
+     res.status(201).json(user)
 
-    res.status(201).json(user);
   } catch (error) {
     res.status(500).json(`signup error ${error.message}`);
   }
@@ -57,16 +58,16 @@ export const signIn = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = await genToken(user._id);
+     const token =await genToken (user._id)
+     res.cookie("token",token,{
+      secure:false,
+      samSite:"strict",
+      maxAge:7*24*60*60*1000,
+      httpOnly:true
+     })
+    
+     res.status(200).json(user)
 
-    res.cookie("token", token, {
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-    });
-
-    res.status(200).json(user);
   } catch (error) {
     res.status(500).json(`signIn error ${error.message}`);
   }
@@ -151,15 +152,16 @@ export const googleAuth = async (req, res) => {
         role,
       });
     }
-    const token = await genToken(user._id);
-    res.cookie("token", token, {
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-    });
-    return res.status(200).json(user);
+    const token = await genToken(user._id)
+    res.cookie("token",token,{
+      secure:false,
+      samSite:"strict",
+      maxAge:7*24*60*60*1000,
+      httpOnly:true
+
+    })
+    return res.status(200).json(user)
   } catch (error) {
     return res.status(500).json(`Google Auth  error ${error}`);
   }
-};
+}
