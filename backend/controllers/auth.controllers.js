@@ -27,11 +27,11 @@ import { sendOtpMail } from "../utils/mail.js";
      })
 
      const token =await genToken (user._id)
-     res.cookie("token",token,{
-      secure:true,
-      samSite:"none",
-      maxAge:7*24*60*60*1000,
-      httpOnly:true
+     res.cookie("token", token, {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true
      })
     
      res.status(201).json(user)
@@ -54,13 +54,13 @@ import { sendOtpMail } from "../utils/mail.js";
       return res.status(400).json({message:"Invalid credentials"})
     }
 
-     const token =await genToken (user._id)
-     res.cookie("token",token,{
-      secure:true,
-      samSite:"none",
-      maxAge:7*24*60*60*1000,
-      httpOnly:true
-     })
+    const token =await genToken (user._id)
+    res.cookie("token", token, {
+     secure: process.env.NODE_ENV === 'production',
+     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+     maxAge: 7 * 24 * 60 * 60 * 1000,
+     httpOnly: true
+    })
     
      res.status(200).json(user)
 
@@ -71,7 +71,11 @@ import { sendOtpMail } from "../utils/mail.js";
 
 export const signOut = (req,res) =>{
   try {
-    res.clearCookie("token")
+    // Clear cookie with same attributes to ensure removal in cross-site context
+    res.clearCookie("token", {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    })
     res.status(200).json({message:"Signout successfully"})
   } catch (error) {
     res.status(500).json(`signout error ${error.message}`)
@@ -141,12 +145,11 @@ export const googleAuth =async (req,res) =>{
     })
     }
     const token = await genToken(user._id)
-    res.cookie("token",token,{
-       secure:true,
-      samSite:"none",
-      maxAge:7*24*60*60*1000,
-      httpOnly:true
-
+    res.cookie("token", token, {
+       secure: process.env.NODE_ENV === 'production',
+       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+       maxAge: 7 * 24 * 60 * 60 * 1000,
+       httpOnly: true
     })
     return res.status(200).json(user)
   } catch (error) {
