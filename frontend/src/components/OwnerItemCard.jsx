@@ -3,16 +3,23 @@ import React from "react";
 import { FaPen, FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { serverUrl } from "../App";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setMyShopData } from "../redux/ownerSlice";
 
 const OwnerItemCard = ({ data }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch()
+  const { authToken } = useSelector((state) => state.user);
 
   const handleDelete = async() =>{
     try {
-      const result = await axios.get(`${serverUrl}/api/item/delete/${data._id}`,{withCredentials:true})
+      const result = await axios.get(
+        `${serverUrl}/api/item/delete/${data._id}`,
+        {
+          withCredentials:true,
+          headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+        }
+      )
      dispatch(setMyShopData(result.data))
     } catch (error) {
       console.log(error)

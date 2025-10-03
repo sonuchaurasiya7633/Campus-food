@@ -1,4 +1,5 @@
 import React, {useEffect } from "react";
+import axios from "axios";
 import { Navigate, Route, Routes } from "react-router-dom";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
@@ -22,7 +23,7 @@ import useUpdateLocation from "./hooks/useUpdateLocation";
 import TrackOrderPage from "./pages/TrackOrderPage";
 import Shop from "./pages/Shop";
 import { io } from "socket.io-client";
-import { setSocket } from "./redux/userSlice";
+import { setAuthToken, setSocket } from "./redux/userSlice";
 export const serverUrl = "https://campus-food-backend.onrender.com";
 const App = () => {
     const { userData } = useSelector((state) => state.user);
@@ -49,6 +50,18 @@ const App = () => {
     socketInstance.disconnect();
   };
 }, [userData?._id]);
+
+// Capture token from any response header and store as fallback (Axios interceptor)
+useEffect(() => {
+  const id = axios.interceptors.response.use((response) => {
+    const headerToken = response?.headers?.['x-auth-token'];
+    if (headerToken) {
+      dispatch(setAuthToken(headerToken));
+    }
+    return response;
+  });
+  return () => axios.interceptors.response.eject(id);
+}, [dispatch]);
 
 
   return (

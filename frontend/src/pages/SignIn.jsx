@@ -8,7 +8,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase";
 import { ClipLoader } from "react-spinners";
 import { useDispatch } from "react-redux";
-import { setUserData } from "../redux/userSlice";
+import { setAuthToken, setUserData } from "../redux/userSlice";
 const SignIn = () => {
   const bgColor = "#fff7f2"; // Warm soft background
   const borderColor = "#e5e7eb"; // Neutral border
@@ -31,6 +31,10 @@ const SignIn = () => {
         { email, password },
         { withCredentials: true }
       );
+      const receivedToken = result.headers?.["x-auth-token"]; 
+      if (receivedToken) {
+        dispatch(setAuthToken(receivedToken));
+      }
       dispatch(setUserData(result.data));
       setErr("");
       setLoading(false);
@@ -44,7 +48,7 @@ const SignIn = () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      const { data } = await axios.post(
+      const { data, headers } = await axios.post(
         `${serverUrl}/api/auth/google-auth`,
         {
           email: result.user.email,
@@ -52,6 +56,10 @@ const SignIn = () => {
         { withCredentials: true }
       );
       dispatch(setUserData(data));
+      const receivedToken2 = headers?.["x-auth-token"]; 
+      if (receivedToken2) {
+        dispatch(setAuthToken(receivedToken2));
+      }
     } catch (error) {
       setErr(error?.response?.data?.message);
     }

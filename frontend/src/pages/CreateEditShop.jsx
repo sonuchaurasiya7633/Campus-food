@@ -13,6 +13,7 @@ const CreateEditShop = () => {
   const { currentCity, currentState, currentAddress } = useSelector(
     (state) => state.user
   );
+  const { authToken } = useSelector((state) => state.user);
 
   const [name, setName] = useState(myShopData?.name || "");
   const [address, setAddress] = useState(myShopData?.address || currentAddress);
@@ -44,7 +45,10 @@ const CreateEditShop = () => {
       const result = await axios.post(
         `${serverUrl}/api/shop/create-edit`,
         formData,
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+        }
       );
       dispatch(setMyShopData(result.data));
       navigate("/")

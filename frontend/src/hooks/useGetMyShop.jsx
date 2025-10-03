@@ -7,12 +7,13 @@ import { setMyShopData } from "../redux/ownerSlice";
 
 const useGetMyShop= () => {
   const dispatch = useDispatch();   
-   const {userData} = useSelector(state=>state.user)
+  const { userData, authToken } = useSelector(state=>state.user)
   useEffect(() => {
     const fetchShop = async () => {
       try {
         const result = await axios.get(`${serverUrl}/api/shop/get-my`, {
           withCredentials: true,
+          headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
         });
         dispatch(setMyShopData(result.data));
       } catch (error) {
@@ -20,7 +21,7 @@ const useGetMyShop= () => {
       }
     };
     fetchShop ();
-  }, [dispatch,userData]);
+  }, [dispatch,userData,authToken]);
 };
 
 export default useGetMyShop;

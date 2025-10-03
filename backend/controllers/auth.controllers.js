@@ -1,6 +1,21 @@
 import User from "../models/user.model.js ";
 import bcrypt from "bcryptjs";
 import genToken from "../utils/token.js";
+
+// Build cross-site-safe cookie options based on request protocol
+const buildCookieOptions = (req) => {
+  const forwardedProto = (req.get("x-forwarded-proto") || "").toLowerCase();
+  const isHttps = forwardedProto.includes("https") || req.secure === true;
+  const base = {
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    sameSite: isHttps ? "none" : "lax",
+    secure: isHttps,
+    path: "/",
+  };
+  // Add Partitioned for modern browsers to work with 3rd-party cookie phase-out
+  return isHttps ? { ...base, partitioned: true } : base;
+};
 import { sendOtpMail } from "../utils/mail.js";
 
  export const signUp = async (req,res) =>{
@@ -27,12 +42,8 @@ import { sendOtpMail } from "../utils/mail.js";
      })
 
      const token =await genToken (user._id)
-     res.cookie("token", token, {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true
-     })
+     res.cookie("token", token, buildCookieOptions(req))
+     res.set('x-auth-token', token)
     
      res.status(201).json(user)
 
@@ -55,12 +66,8 @@ import { sendOtpMail } from "../utils/mail.js";
     }
 
     const token =await genToken (user._id)
-    res.cookie("token", token, {
-     secure: process.env.NODE_ENV === 'production',
-     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-     maxAge: 7 * 24 * 60 * 60 * 1000,
-     httpOnly: true
-    })
+    res.cookie("token", token, buildCookieOptions(req))
+    res.set('x-auth-token', token)
     
      res.status(200).json(user)
 
@@ -72,10 +79,8 @@ import { sendOtpMail } from "../utils/mail.js";
 export const signOut = (req,res) =>{
   try {
     // Clear cookie with same attributes to ensure removal in cross-site context
-    res.clearCookie("token", {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
-    })
+    const clearOpts = buildCookieOptions(req)
+    res.clearCookie("token", clearOpts)
     res.status(200).json({message:"Signout successfully"})
   } catch (error) {
     res.status(500).json(`signout error ${error.message}`)
@@ -145,12 +150,8 @@ export const googleAuth =async (req,res) =>{
     })
     }
     const token = await genToken(user._id)
-    res.cookie("token", token, {
-       secure: process.env.NODE_ENV === 'production',
-       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-       maxAge: 7 * 24 * 60 * 60 * 1000,
-       httpOnly: true
-    })
+    res.cookie("token", token, buildCookieOptions(req))
+    res.set('x-auth-token', token)
     return res.status(200).json(user)
   } catch (error) {
     return res.status(500).json(`Google Auth  error ${error}`)

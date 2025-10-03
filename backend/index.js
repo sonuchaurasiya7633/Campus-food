@@ -16,16 +16,22 @@ import http from 'http'
 import { Server } from 'socket.io';
 import { socketHandler } from './socket.js';
  const app = express();
+// Ensure Express respects X-Forwarded-* headers (Render/Heroku/NGINX)
+app.set('trust proxy', 1);
 const server = http.createServer(app)
 
 
 
 const io = new Server(server,{
     cors:{
-    origin:"https://campus-food-sonu-hfgk.onrender.com",
-    credentials:true,
-    methods:['POST','GET'] 
-}
+      origin:[
+        "https://campus-food-sonu-hfgk.onrender.com",
+        "https://campus-food-sonu-hfgk.netlify.app",
+        "http://localhost:5173",
+      ],
+      credentials:true,
+      methods:['GET','POST','PUT','PATCH','DELETE','OPTIONS']
+    }
 })
 
 
@@ -33,10 +39,19 @@ const io = new Server(server,{
 app.set("io",io)
 
 const port = process.env.PORT || 5000;
-app.use(cors({
-    origin:"https://campus-food-sonu-hfgk.onrender.com",
-    credentials:true
-}))
+const corsOptions = {
+  origin: [
+    "https://campus-food-sonu-hfgk.onrender.com",
+    "https://campus-food-sonu-hfgk.netlify.app",
+    "http://localhost:5173",
+  ],
+  credentials: true,
+  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
+};
+app.use(cors(corsOptions))
+// Ensure preflight for all routes
+app.options('*', cors(corsOptions))
 
 app.use(express.json());
 app.use(cookieParser());
